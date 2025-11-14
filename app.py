@@ -1,4 +1,4 @@
-# app.py — Beautiful Food Vision Ultra UI
+# app.py — Beautiful Food Vision Ultra UI (Dark-Mode Safe)
 import streamlit as st
 from src.model_loader import get_model, load_model_from_path
 from src.preprocessing import preprocess_image
@@ -16,30 +16,32 @@ st.set_page_config(
 )
 
 # -----------------------
-# Custom CSS for beautiful UI
+# Custom CSS (fixed for dark mode)
 # -----------------------
 st.markdown("""
 <style>
 .big-pred-box {
-    background: #ffffff;
+    background: #1e1e1e;
     padding: 25px;
     border-radius: 15px;
     text-align: center;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
     margin-top: 10px;
 }
 .food-label {
     font-size: 32px;
     font-weight: 700;
+    color: white !important;
 }
 .confidence-text {
     font-size: 18px;
-    color: #555;
+    color: #cccccc !important;
 }
 .top5-title {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 5px;
+    color: white !important;
 }
 .dataframe td {
     padding: 8px !important;
@@ -51,10 +53,10 @@ st.markdown("""
 # Title
 # -----------------------
 st.title("🍽️ Food Vision Ultra")
-st.write("Upload a food image to get the AI prediction. View final prediction or expand to see Top-5.")
+st.write("Upload a food image to get the AI prediction. View the final prediction or expand to see Top-5.")
 
 # -----------------------
-# Config
+# Config Paths
 # -----------------------
 DEFAULT_MODEL_PATH = "./models/best_food101_resnet50.pth"
 LABELS_PATH = "./src/label_map_food101.json"
@@ -106,19 +108,17 @@ if uploaded_img is not None:
     col1.image(img, caption="Uploaded Image", use_column_width=True)
 
     if not loaded:
-        col2.warning("Model not loaded. Upload a checkpoint or enable repo model.")
+        col2.warning("Model not loaded. Upload or enable repo model.")
     else:
         # Preprocess + Predict
         inp = preprocess_image(img)
 
-        # Get final prediction
+        # --- Final Single Prediction ---
         pred_idx, pred_prob = predict_single(model, inp)
         pred_name = labels.get(str(pred_idx), str(pred_idx))
         pred_clean = pred_name.replace("_", " ").title()
 
-        # -----------------------
-        # BEAUTIFUL Prediction Box
-        # -----------------------
+        # --- BEAUTIFUL PREDICTION CARD ---
         col2.markdown(f"""
         <div class="big-pred-box">
             <div class="food-label">🍽️ {pred_clean}</div>
@@ -126,14 +126,12 @@ if uploaded_img is not None:
         </div>
         """, unsafe_allow_html=True)
 
-        # -----------------------
-        # Top-5 Predictions Expander
-        # -----------------------
+        # --- Top-5 predictions (Expandable) ---
         with col2.expander("🔍 Show Top-5 Predictions"):
             top5 = predict_topk(model, inp, k=5)
 
-            # Convert to readable table
-            st.write("**Top-5 Predictions**")
+            st.markdown("<div class='top5-title'>Top-5 Predictions</div>", unsafe_allow_html=True)
+
             for idx, prob in top5:
                 name = labels.get(str(idx), str(idx)).replace("_", " ").title()
                 st.write(f"- **{name}** — {prob:.2%}")
