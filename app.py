@@ -20,8 +20,9 @@ st.title("Food Vision Ultra — Food-101 demo")
 st.write("Upload an image and (optionally) a model checkpoint. The app will show top-5 predictions.")
 
 # Config
-DEFAULT_MODEL_PATH = "models/food101_best.pth"
-LABELS_PATH = "src/label_map.json"
+DEFAULT_MODEL_PATH = "./models/best_food101_resnet50.pth"
+LABELS_PATH = "./src/label_map_food101.json"
+
 
 # Load labels
 if os.path.exists(LABELS_PATH):
